@@ -1,0 +1,15 @@
+# Changes here will be overwritten by Copier; NEVER EDIT MANUALLY
+_commit: v4.5.2
+_src_path: https://github.com/jupyterlab/extension-template
+author_email: n.soveizi@uva.nl
+author_name: Nafiseh
+has_ai_rules: false
+has_binder: false
+has_settings: true
+kind: frontend
+labextension_name: naavre-metadata-catalogue
+project_short_description: A JupyterLab extension.
+python_name: naavre_metadata_catalogue
+repository: https://github.com/nafisesoezy/naavre-metadata-catalogue
+test: true
+

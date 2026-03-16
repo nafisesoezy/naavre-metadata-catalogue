@@ -1,0 +1,8 @@
+{
+  "jupyter.lab.shortcuts": [],
+  "title": "naavre-metadata-catalogue",
+  "description": "naavre-metadata-catalogue settings.",
+  "type": "object",
+  "properties": {},
+  "additionalProperties": false
+}
