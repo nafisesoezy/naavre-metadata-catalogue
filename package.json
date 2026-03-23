@@ -1,5 +1,5 @@
 {
-    "name": "naavre-metadata-catalogue",
+    "name": "naavre-metadata-catalogue-jupyterlab",
     "version": "0.1.0",
     "description": "A JupyterLab extension.",
     "keywords": [
@@ -11,7 +11,7 @@
     "bugs": {
         "url": "https://github.com/nafisesoezy/naavre-metadata-catalogue/issues"
     },
-    "license": "BSD-3-Clause",
+    "license": "Apache-2.0",
     "author": {
         "name": "Nafiseh",
         "email": "n.soveizi@uva.nl"
@@ -58,7 +58,8 @@
     },
     "dependencies": {
         "@jupyterlab/application": "^4.0.0",
-        "@jupyterlab/settingregistry": "^4.0.0"
+        "@jupyterlab/settingregistry": "^4.0.0",
+        "@naavre/communicator-jupyterlab": "*"
     },
     "devDependencies": {
         "@jupyterlab/builder": "^4.0.0",

@@ -2321,7 +2321,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@jupyterlab/coreutils@npm:^6.5.6":
+"@jupyterlab/coreutils@npm:^6.0.0, @jupyterlab/coreutils@npm:^6.5.6":
   version: 6.5.6
   resolution: "@jupyterlab/coreutils@npm:6.5.6"
   dependencies:
@@ -2603,7 +2603,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@jupyterlab/services@npm:^7.5.6":
+"@jupyterlab/services@npm:^7.0.0, @jupyterlab/services@npm:^7.5.6":
   version: 7.5.6
   resolution: "@jupyterlab/services@npm:7.5.6"
   dependencies:
@@ -3140,6 +3140,17 @@ __metadata:
   dependencies:
     exenv-es6: ^1.1.1
   checksum: 303e87847f962944f474e3716c3eb305668243916ca9e0719e26bb9a32346144bc958d915c103776b3e552cea0f0f6233f839fad66adfdf96a8436b947288ca7
+  languageName: node
+  linkType: hard
+
+"@naavre/communicator-jupyterlab@npm:*":
+  version: 0.3.3
+  resolution: "@naavre/communicator-jupyterlab@npm:0.3.3"
+  dependencies:
+    "@jupyterlab/application": ^4.0.0
+    "@jupyterlab/coreutils": ^6.0.0
+    "@jupyterlab/services": ^7.0.0
+  checksum: e315442e5318590247fc1966ef78641720caf6281da2566f98f9f81e329982fa5bd8e047c0429bf30f42bc37d54c3cad82e67ae89cade96a6983a2c0a0d7770d
   languageName: node
   linkType: hard
 
@@ -8490,14 +8501,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"naavre-metadata-catalogue@workspace:.":
+"naavre-metadata-catalogue-jupyterlab@workspace:.":
   version: 0.0.0-use.local
-  resolution: "naavre-metadata-catalogue@workspace:."
+  resolution: "naavre-metadata-catalogue-jupyterlab@workspace:."
   dependencies:
     "@jupyterlab/application": ^4.0.0
     "@jupyterlab/builder": ^4.0.0
     "@jupyterlab/settingregistry": ^4.0.0
     "@jupyterlab/testutils": ^4.0.0
+    "@naavre/communicator-jupyterlab": "*"
     "@types/jest": ^29.2.0
     "@types/json-schema": ^7.0.11
     "@types/react": ^18.0.26

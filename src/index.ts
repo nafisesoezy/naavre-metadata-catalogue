@@ -6,40 +6,473 @@ import { ICommandPalette } from '@jupyterlab/apputils';
 import { Widget } from '@lumino/widgets';
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
 
-/**
- * Initialization data for the LTER-LIFE-metadata-catalogue extension.
- */
-function createCatalogueWidget(): Widget {
+type BasketItem = {
+  uuid: string;
+  title: string;
+  link: string;
+};
+
+function createCatalogueWidget(metadataCatalogueUrl: string): Widget {
+  const pageSize = 10;
+  let currentPage = 1;
+  let totalPages = 0;
+  let currentQuery = '';
+
+  const basket: BasketItem[] = [];
+
   const widget = new Widget();
   widget.id = 'LTER-LIFE-catalogue-panel';
   widget.title.label = 'Catalogue';
   widget.title.closable = true;
 
-  const container = document.createElement('div');
-  container.style.padding = '20px';
+  widget.node.style.height = '100%';
+  widget.node.style.display = 'flex';
+  widget.node.style.flexDirection = 'column';
+  widget.node.style.overflow = 'hidden';
 
-  const title = document.createElement('h2');
-  title.innerText = 'LTER-LIFE Metadata Catalogue';
+  const container = document.createElement('div');
+  container.style.display = 'flex';
+  container.style.flexDirection = 'column';
+  container.style.flex = '1';
+  container.style.minHeight = '0';
+  container.style.padding = '24px';
+  container.style.boxSizing = 'border-box';
+  container.style.fontFamily = 'Arial, sans-serif';
+  container.style.lineHeight = '1.5';
+  container.style.maxWidth = '1100px';
+  container.style.overflow = 'hidden';
+
+  const heading = document.createElement('h2');
+  heading.innerText = 'LTER-LIFE Metadata Catalogue';
+  heading.style.margin = '0 0 16px 0';
+  heading.style.fontSize = '22px';
+  heading.style.fontWeight = '600';
+  heading.style.color = '#202124';
+
+  const searchBar = document.createElement('div');
+  searchBar.style.display = 'flex';
+  searchBar.style.alignItems = 'center';
+  searchBar.style.gap = '10px';
+  searchBar.style.marginBottom = '18px';
+  searchBar.style.flexWrap = 'wrap';
 
   const input = document.createElement('input');
   input.placeholder = 'Search catalogue...';
-  input.style.marginRight = '10px';
-  input.style.padding = '6px';
+  input.style.width = '420px';
+  input.style.maxWidth = '100%';
+  input.style.padding = '10px 12px';
+  input.style.fontSize = '15px';
+  input.style.border = '1px solid #d0d7de';
+  input.style.borderRadius = '6px';
+  input.style.outline = 'none';
 
-  const button = document.createElement('button');
-  button.innerText = 'Search';
+  const searchButton = document.createElement('button');
+  searchButton.innerText = 'Search';
+  searchButton.style.padding = '10px 16px';
+  searchButton.style.fontSize = '15px';
+  searchButton.style.border = '1px solid #d0d7de';
+  searchButton.style.borderRadius = '6px';
+  searchButton.style.cursor = 'pointer';
+  searchButton.style.background = '#f6f8fa';
+
+  const basketPanel = document.createElement('div');
+  basketPanel.style.marginBottom = '18px';
+  basketPanel.style.padding = '14px 16px';
+  basketPanel.style.border = '1px solid #dadce0';
+  basketPanel.style.borderRadius = '8px';
+  basketPanel.style.background = '#f8f9fa';
+
+  const resultsInfo = document.createElement('div');
+  resultsInfo.style.marginBottom = '14px';
+  resultsInfo.style.color = '#5f6368';
+  resultsInfo.style.fontSize = '15px';
+
+  const paginationBar = document.createElement('div');
+  paginationBar.style.display = 'none';
+  paginationBar.style.alignItems = 'center';
+  paginationBar.style.gap = '12px';
+  paginationBar.style.marginBottom = '14px';
+  paginationBar.style.flexWrap = 'wrap';
+
+  const previousButton = document.createElement('button');
+  previousButton.innerText = 'Previous';
+  previousButton.style.padding = '8px 14px';
+  previousButton.style.fontSize = '14px';
+  previousButton.style.border = '1px solid #d0d7de';
+  previousButton.style.borderRadius = '6px';
+  previousButton.style.cursor = 'pointer';
+  previousButton.style.background = '#f6f8fa';
+
+  const nextButton = document.createElement('button');
+  nextButton.innerText = 'Next';
+  nextButton.style.padding = '8px 14px';
+  nextButton.style.fontSize = '14px';
+  nextButton.style.border = '1px solid #d0d7de';
+  nextButton.style.borderRadius = '6px';
+  nextButton.style.cursor = 'pointer';
+  nextButton.style.background = '#f6f8fa';
+
+  const pageInfo = document.createElement('span');
+  pageInfo.style.color = '#5f6368';
+  pageInfo.style.fontSize = '14px';
+
+  paginationBar.appendChild(previousButton);
+  paginationBar.appendChild(nextButton);
+  paginationBar.appendChild(pageInfo);
 
   const results = document.createElement('div');
-  results.style.marginTop = '20px';
+  results.style.flex = '1';
+  results.style.minHeight = '0';
+  results.style.overflowY = 'auto';
+  results.style.marginTop = '4px';
+  results.style.paddingRight = '4px';
 
-  button.onclick = () => {
-    results.innerHTML =
-      '<p>Fake result 1</p><p>Fake dataset 2</p><p>Fake dataset 3</p>';
+  function escapeHtml(value: string): string {
+    return value
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+
+  function createBasketIcon(): string {
+    return `
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true"
+      >
+        <path
+          d="M7 10L12 4L17 10"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+        <path
+          d="M5 10H19L17.5 20H6.5L5 10Z"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linejoin="round"
+        />
+      </svg>
+    `;
+  }
+
+  function updateBasketUI(): void {
+    if (basket.length === 0) {
+      basketPanel.innerHTML = `
+        <div style="font-size:16px; font-weight:600; color:#202124; margin-bottom:6px;">
+          🧺 Basket
+        </div>
+        <div style="font-size:14px; color:#5f6368;">
+          No records added yet.
+        </div>
+      `;
+      return;
+    }
+
+    basketPanel.innerHTML = `
+      <div style="font-size:16px; font-weight:600; color:#202124; margin-bottom:8px;">
+        🧺 Basket (${basket.length})
+      </div>
+      <ul style="margin:0; padding-left:18px;">
+        ${basket
+          .map(
+            item => `
+              <li style="margin-bottom:6px;">
+                <a
+                  href="${escapeHtml(item.link)}"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style="color:#1a0dab; text-decoration:none;"
+                  onmouseover="this.style.textDecoration='underline'"
+                  onmouseout="this.style.textDecoration='none'"
+                >
+                  ${escapeHtml(item.title)}
+                </a>
+              </li>
+            `
+          )
+          .join('')}
+      </ul>
+    `;
+  }
+
+  function addToBasket(item: BasketItem): boolean {
+    const exists = basket.some(existing => existing.uuid === item.uuid);
+    if (exists) {
+      return false;
+    }
+
+    basket.push(item);
+    updateBasketUI();
+    return true;
+  }
+
+  function updatePaginationUI(): void {
+    if (totalPages <= 1) {
+      paginationBar.style.display = 'none';
+      return;
+    }
+
+    paginationBar.style.display = 'flex';
+    previousButton.disabled = currentPage <= 1;
+    nextButton.disabled = currentPage >= totalPages;
+    pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+  }
+
+ function getRecordTitle(src: any): string {
+  return (
+    src?.title ||
+    src?.resourceTitleObject?.default ||
+    'Untitled record'
+  );
+}
+
+
+
+  function getRecordOrganisation(src: any): string {
+    return (
+      src?.organisation ||
+      src?.orgNameObject?.default ||
+      src?.owner ||
+      src?.contact ||
+      ''
+    );
+  }
+
+  function renderResults(hits: any[]): void {
+      results.innerHTML = '';
+
+      hits.forEach((hit: any) => {
+        const src = hit?._source || {};
+        const recordTitle = getRecordTitle(src);
+        const uuid = src?.uuid || '';
+        const organisation = getRecordOrganisation(src);
+
+        const showOrganisation =
+          organisation && !/^\d+$/.test(String(organisation).trim());
+
+        const link = `https://lter-life-catalogue.qcdis.org/geonetwork/srv/eng/catalog.search#/metadata/${uuid}`;
+
+        const card = document.createElement('div');
+        card.style.padding = '0 0 14px 0';
+        card.style.marginBottom = '18px';
+        card.style.borderBottom = '1px solid #e0e0e0';
+
+        const metadataLine = `
+          <div style="color:#5f6368; font-size:12px; margin:4px 0 6px 0;">
+            UUID: ${escapeHtml(uuid || 'N/A')}
+          </div>
+          ${
+            showOrganisation
+              ? `
+              <div style="color:#188038; font-size:12px; margin:2px 0 6px 0;">
+                ${escapeHtml(organisation)}
+              </div>
+            `
+              : ''
+          }
+        `;
+
+        card.innerHTML = `
+          <div style="margin-bottom:6px;">
+            <a
+              href="${escapeHtml(link)}"
+              target="_blank"
+              rel="noopener noreferrer"
+              style="
+                color:#1a0dab;
+                text-decoration:none;
+                font-size:18px;
+                font-weight:500;
+                line-height:1.25;
+              "
+              onmouseover="this.style.textDecoration='underline'"
+              onmouseout="this.style.textDecoration='none'"
+            >
+              ${escapeHtml(recordTitle)}
+            </a>
+          </div>
+    
+          ${metadataLine}
+    
+          <div
+            style="
+              display:flex;
+              align-items:center;
+              gap:18px;
+              flex-wrap:wrap;
+              margin-top:6px;
+            "
+          >
+            <button
+              class="basket-btn"
+              type="button"
+              style="
+                background:none;
+                border:none;
+                color:#1a0dab;
+                font-size:13px;
+                cursor:pointer;
+                padding:0;
+                display:inline-flex;
+                align-items:center;
+                gap:6px;
+              "
+            >
+              ${createBasketIcon()}
+              <span>Add to basket</span>
+            </button>
+    
+            <a
+              href="${escapeHtml(link)}"
+              target="_blank"
+              rel="noopener noreferrer"
+              style="
+                color:#1a0dab;
+                text-decoration:none;
+                font-size:13px;
+              "
+              onmouseover="this.style.textDecoration='underline'"
+              onmouseout="this.style.textDecoration='none'"
+            >
+              View record
+            </a>
+          </div>
+        `;
+
+        results.appendChild(card);
+
+        const basketButton = card.querySelector('.basket-btn') as HTMLButtonElement;
+        basketButton.onclick = () => {
+          const added = addToBasket({
+            uuid,
+            title: recordTitle,
+            link
+          });
+
+          if (added) {
+            basketButton.innerHTML = `
+              <span style="font-size:14px;">✅</span>
+              <span>Added to basket</span>
+            `;
+            basketButton.disabled = true;
+            basketButton.style.color = '#188038';
+            basketButton.style.cursor = 'default';
+          }
+        };
+      });
+    }
+  async function runSearch(resetPage = false): Promise<void> {
+    if (resetPage) {
+      currentPage = 1;
+      currentQuery = input.value.trim();
+    }
+
+    resultsInfo.innerHTML = '';
+    results.innerHTML = '<p style="color:#5f6368;">Searching...</p>';
+    paginationBar.style.display = 'none';
+
+    if (!currentQuery) {
+      results.innerHTML =
+        '<p style="color:#d93025;">Please enter a search term.</p>';
+      return;
+    }
+
+    if (!metadataCatalogueUrl) {
+      results.innerHTML =
+        '<p style="color:#d93025;">Metadata catalogue URL is not configured.</p>';
+      return;
+    }
+
+    try {
+      const searchUrl = `${metadataCatalogueUrl.replace(/\/$/, '')}/search`;
+
+      const response = await fetch(searchUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json'
+        },
+        body: JSON.stringify({
+          query: currentQuery,
+          page: currentPage,
+          size: pageSize
+        })
+      });
+
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(`${response.status} ${response.statusText}: ${text}`);
+      }
+
+      const data = await response.json();
+      const hits = data?.hits?.hits || [];
+      const total = data?.total || 0;
+      totalPages = data?.total_pages || 0;
+
+      if (hits.length === 0) {
+        resultsInfo.innerHTML = 'No results found.';
+        results.innerHTML = '';
+        return;
+      }
+
+      resultsInfo.innerHTML = `About ${total} result${total === 1 ? '' : 's'}`;
+      renderResults(hits);
+      updatePaginationUI();
+    } catch (err: any) {
+      console.error('Search error:', err);
+      resultsInfo.innerHTML = '';
+      results.innerHTML = `
+        <p style="color:#d93025;">
+          Error while searching: ${escapeHtml(String(err?.message || err))}
+        </p>
+      `;
+      paginationBar.style.display = 'none';
+    }
+  }
+
+  searchButton.onclick = () => {
+    void runSearch(true);
   };
 
-  container.appendChild(title);
-  container.appendChild(input);
-  container.appendChild(button);
+  input.addEventListener('keydown', event => {
+    if (event.key === 'Enter') {
+      void runSearch(true);
+    }
+  });
+
+  previousButton.onclick = () => {
+    if (currentPage > 1) {
+      currentPage -= 1;
+      void runSearch(false);
+    }
+  };
+
+  nextButton.onclick = () => {
+    if (currentPage < totalPages) {
+      currentPage += 1;
+      void runSearch(false);
+    }
+  };
+
+  updateBasketUI();
+
+  searchBar.appendChild(input);
+  searchBar.appendChild(searchButton);
+
+  container.appendChild(heading);
+  container.appendChild(searchBar);
+  container.appendChild(basketPanel);
+  container.appendChild(resultsInfo);
+  container.appendChild(paginationBar);
   container.appendChild(results);
 
   widget.node.appendChild(container);
@@ -47,8 +480,8 @@ function createCatalogueWidget(): Widget {
 }
 
 const plugin: JupyterFrontEndPlugin<void> = {
-  id: 'LTER-LIFE-metadata-catalogue:plugin',
-  description: 'A JupyterLab extension.',
+  id: 'naavre-metadata-catalogue-jupyterlab:plugin',
+  description: 'LTER-LIFE metadata catalogue search panel for JupyterLab.',
   autoStart: true,
   optional: [ISettingRegistry],
   requires: [ICommandPalette],
@@ -57,15 +490,29 @@ const plugin: JupyterFrontEndPlugin<void> = {
     palette: ICommandPalette,
     settingRegistry: ISettingRegistry | null
   ) => {
-    console.log('JupyterLab extension LTERLIFE-metadata-catalogue is activated!');
+    console.log('JupyterLab extension LTER-LIFE-metadata-catalogue is activated.');
+
     const { commands, shell } = app;
     const command = 'catalogue:open';
 
     commands.addCommand(command, {
       label: 'Open LTER-LIFE Metadata Catalogue',
-      execute: () => {
-        const widget = createCatalogueWidget();
+      execute: async () => {
+        let metadataCatalogueUrl = '';
+
+        if (settingRegistry) {
+          try {
+            const settings = await settingRegistry.load(plugin.id);
+            metadataCatalogueUrl =
+              (settings.get('metadataCatalogueUrl').composite as string) || '';
+          } catch (reason) {
+            console.error('Failed to load metadataCatalogueUrl setting.', reason);
+          }
+        }
+
+        const widget = createCatalogueWidget(metadataCatalogueUrl);
         shell.add(widget, 'main');
+        shell.activateById(widget.id);
       }
     });
 
@@ -73,14 +520,21 @@ const plugin: JupyterFrontEndPlugin<void> = {
       command,
       category: 'NaaVRE'
     });
+
     if (settingRegistry) {
-      settingRegistry
+      void settingRegistry
         .load(plugin.id)
         .then(settings => {
-          console.log('LTERLIFE-metadata-catalogue settings loaded:', settings.composite);
+          console.log(
+            'LTER-LIFE-metadata-catalogue settings loaded:',
+            settings.composite
+          );
         })
         .catch(reason => {
-          console.error('Failed to load settings for LTERLIFE-metadata-catalogue.', reason);
+          console.error(
+            'Failed to load settings for LTER-LIFE-metadata-catalogue.',
+            reason
+          );
         });
     }
   }

@@ -1,8 +1,15 @@
 {
   "jupyter.lab.shortcuts": [],
-  "title": "naavre-metadata-catalogue",
-  "description": "naavre-metadata-catalogue settings.",
+  "title": "naavre-metadata-catalogue-jupyterlab",
+  "description": "naavre-metadata-catalogue-jupyterlab settings.",
   "type": "object",
-  "properties": {},
+  "properties": {
+    "metadataCatalogueUrl": {
+      "type": "string",
+      "title": "Metadata Catalogue URL",
+      "description": "Base URL of the metadata catalogue API.",
+      "default": ""
+    }
+  },
   "additionalProperties": false
 }

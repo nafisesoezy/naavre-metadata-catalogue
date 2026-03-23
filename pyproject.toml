@@ -3,7 +3,7 @@ requires = ["hatchling>=1.5.0", "jupyterlab>=4.0.0,<5", "hatch-nodejs-version>=0
 build-backend = "hatchling.build"
 
 [project]
-name = "naavre_metadata_catalogue"
+name = "naavre_metadata_catalogue_jupyterlab"
 readme = "README.md"
 license = { file = "LICENSE" }
 requires-python = ">=3.10"
@@ -13,7 +13,7 @@ classifiers = [
     "Framework :: Jupyter :: JupyterLab :: 4",
     "Framework :: Jupyter :: JupyterLab :: Extensions",
     "Framework :: Jupyter :: JupyterLab :: Extensions :: Prebuilt",
-    "License :: OSI Approved :: BSD License",
+    "License :: OSI Approved :: Apache Software License",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
@@ -37,8 +37,8 @@ artifacts = ["naavre_metadata_catalogue/labextension"]
 exclude = [".github", "binder"]
 
 [tool.hatch.build.targets.wheel.shared-data]
-"naavre_metadata_catalogue/labextension" = "share/jupyter/labextensions/naavre-metadata-catalogue"
-"install.json" = "share/jupyter/labextensions/naavre-metadata-catalogue/install.json"
+"naavre_metadata_catalogue/labextension" = "share/jupyter/labextensions/naavre-metadata-catalogue-jupyterlab"
+"install.json" = "share/jupyter/labextensions/naavre-metadata-catalogue-jupyterlab/install.json"
 
 [tool.hatch.build.hooks.version]
 path = "naavre_metadata_catalogue/_version.py"
