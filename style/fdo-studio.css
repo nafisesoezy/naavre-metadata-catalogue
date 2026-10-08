@@ -1,0 +1,1534 @@
+/* FDO Studio â€” styles for the NaaVRE FDO generation panel.
+   Self-contained (no external deps) so it renders consistently regardless
+   of the active JupyterLab theme. Revisit with --jp-* variables if dark
+   mode support becomes a priority. */
+
+.fdo-studio {
+  display: flex;
+  height: 100%;
+  width: 100%;
+  font-family: -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  color: #1f2430;
+  background: #f5f6f8;
+  overflow: hidden;
+}
+
+/* ---------- Sidebar ---------- */
+
+.fdo-sidebar {
+  width: 180px;
+  flex-shrink: 0;
+  background: #ffffff;
+  border-right: 1px solid #e3e6ea;
+  padding: 16px 12px;
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+
+.fdo-sidebar__brand {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #6b7280;
+  padding: 0 8px 12px 8px;
+}
+
+.fdo-sidebar__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.fdo-sidebar__item {
+  width: 100%;
+  text-align: left;
+  border: none;
+  background: none;
+  padding: 9px 10px;
+  border-radius: 6px;
+  font-size: 13.5px;
+  color: #374151;
+  cursor: pointer;
+}
+
+.fdo-sidebar__item:hover {
+  background: #f1f3f6;
+}
+
+.fdo-sidebar__item--active {
+  background: #e8edfd;
+  color: #1d4ed8;
+  font-weight: 600;
+}
+
+.fdo-sidebar__item:disabled {
+  cursor: default;
+  color: #9aa1ad;
+}
+
+/* ---------- Main column ---------- */
+
+.fdo-studio__main {
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
+  padding: 22px 28px 40px;
+  box-sizing: border-box;
+}
+
+/* ---------- Stepper ---------- */
+
+.fdo-stepper {
+  margin-bottom: 18px;
+}
+
+.fdo-stepper__rail {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.fdo-stepper__badge {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: none;
+  background: #d7deea;
+  color: #475569;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.fdo-stepper__badge--current {
+  background: #1d4ed8;
+  color: #ffffff;
+}
+
+.fdo-stepper__badge:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.fdo-stepper__arrow {
+  color: #b6bdc9;
+}
+
+.fdo-stepper__title {
+  margin: 0;
+  font-size: 21px;
+  font-weight: 700;
+}
+
+.fdo-stepper__subtitle {
+  margin: 2px 0 0;
+  color: #6b7280;
+  font-size: 13.5px;
+}
+
+/* ---------- Generic page / card ---------- */
+
+.fdo-page {
+  display: flex;
+  flex-direction: column;
+}
+
+.fdo-page__card {
+  background: #ffffff;
+  border: 1px solid #e3e6ea;
+  border-radius: 10px;
+  padding: 20px 22px;
+}
+
+.fdo-page__heading {
+  margin: 0 0 4px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.fdo-page__lead {
+  margin: 0 0 16px;
+  color: #6b7280;
+  font-size: 13.5px;
+}
+
+.fdo-page__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid #eef0f3;
+  font-size: 13.5px;
+  color: #4b5563;
+}
+
+.fdo-empty {
+  color: #8b93a1;
+  font-size: 13.5px;
+}
+
+/* ---------- Buttons / inputs shared across pages ---------- */
+
+.fdo-btn {
+  font-size: 13.5px;
+  padding: 8px 14px;
+  border-radius: 6px;
+  border: 1px solid #d7dbe2;
+  background: #f8f9fb;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.fdo-btn--primary {
+  background: #1d4ed8;
+  border-color: #1d4ed8;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.fdo-btn--primary:disabled {
+  background: #aab9ea;
+  border-color: #aab9ea;
+  cursor: default;
+}
+
+.fdo-btn--ghost {
+  background: #ffffff;
+}
+
+.fdo-btn--small {
+  padding: 5px 10px;
+  font-size: 12.5px;
+}
+
+.fdo-link-btn {
+  border: none;
+  background: none;
+  color: #1d4ed8;
+  font-size: 13px;
+  cursor: pointer;
+  padding: 0;
+}
+
+.fdo-input,
+.fdo-textarea,
+.fdo-select {
+  font-size: 13.5px;
+  padding: 8px 10px;
+  border: 1px solid #d7dbe2;
+  border-radius: 6px;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.fdo-input--wide {
+  width: 360px;
+}
+
+.fdo-textarea {
+  width: 100%;
+  resize: vertical;
+}
+
+/* ---------- Badges ---------- */
+
+.fdo-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.fdo-badge--dataset {
+  background: #e6f4ea;
+  color: #1a7f37;
+}
+
+.fdo-badge--model {
+  background: #f1e8fb;
+  color: #7c3aed;
+}
+
+.fdo-badge--workflow {
+  background: #e3edff;
+  color: #1d4ed8;
+}
+
+.fdo-badge--output {
+  background: #eef1f5;
+  color: #4b5563;
+}
+
+/* ---------- Catalogue Search page ---------- */
+
+.fdo-search-bar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.fdo-filters-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #eef0f3;
+}
+
+.fdo-filter {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.fdo-filter--inline {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+
+.fdo-tip {
+  background: #fff8e6;
+  border: 1px solid #f4e2a8;
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-bottom: 14px;
+  font-size: 13px;
+}
+
+.fdo-tip__title {
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.fdo-results-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  color: #6b7280;
+  margin-bottom: 10px;
+}
+
+.fdo-error {
+  color: #c0392b;
+  font-size: 13.5px;
+  margin: 0 0 12px;
+}
+
+.fdo-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 16px;
+  font-size: 13px;
+  color: #4b5563;
+}
+
+.fdo-basket-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.fdo-basket-list__item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid #eef0f3;
+  font-size: 13.5px;
+}
+
+.fdo-basket-list__item a {
+  color: #1a0dab;
+  text-decoration: none;
+  flex: 1;
+}
+
+.fdo-basket-list__item a:hover {
+  text-decoration: underline;
+}
+
+.fdo-basket-list__remove {
+  color: #c0392b;
+}
+
+.fdo-result-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.fdo-result-card {
+  padding: 14px 0;
+  border-bottom: 1px solid #eef0f3;
+}
+
+.fdo-result-card__header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.fdo-result-card__title {
+  border: none;
+  background: none;
+  padding: 0;
+  color: #1a0dab;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+}
+
+.fdo-result-card__description {
+  margin: 0 0 6px;
+  font-size: 13.5px;
+  color: #4b5563;
+}
+
+.fdo-result-card__meta {
+  display: flex;
+  gap: 16px;
+  font-size: 12.5px;
+  color: #6b7280;
+  margin-bottom: 8px;
+}
+
+.fdo-result-card__actions {
+  display: flex;
+  gap: 10px;
+}
+
+/* ---------- Workflow Explorer page ---------- */
+
+.fdo-breadcrumb-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.fdo-breadcrumb {
+  font-size: 13.5px;
+  color: #6b7280;
+}
+
+.fdo-breadcrumb__sep {
+  margin: 0 6px;
+}
+
+.fdo-breadcrumb__current {
+  color: #1f2430;
+  font-weight: 600;
+}
+
+.fdo-tabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid #eef0f3;
+  margin-bottom: 16px;
+}
+
+.fdo-tab {
+  border: none;
+  background: none;
+  padding: 8px 14px;
+  font-size: 13.5px;
+  color: #6b7280;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+}
+
+.fdo-tab--active {
+  color: #1d4ed8;
+  border-bottom-color: #1d4ed8;
+  font-weight: 600;
+}
+
+.fdo-graph-layout {
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  gap: 20px;
+}
+
+.fdo-graph-canvas {
+  background: #fafbfc;
+  border: 1px solid #eef0f3;
+  border-radius: 8px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+}
+
+.fdo-graph-row {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.fdo-graph-row__main {
+  position: relative;
+  padding-top: 14px;
+}
+
+.fdo-graph-row:first-child .fdo-graph-row__main {
+  padding-top: 0;
+}
+
+.fdo-graph-connector--vertical {
+  position: absolute;
+  top: -14px;
+  left: 50%;
+  width: 2px;
+  height: 14px;
+  background: #c7cdd6;
+}
+
+.fdo-graph-row__outputs {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.fdo-graph-connector--horizontal {
+  display: none;
+}
+
+.fdo-graph-node {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #cbd5f5;
+  background: #eef2ff;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #1f2430;
+  cursor: pointer;
+  min-width: 200px;
+}
+
+.fdo-graph-node--output {
+  background: #ffffff;
+  border-color: #e3e6ea;
+  font-weight: 500;
+  min-width: 160px;
+}
+
+.fdo-graph-node--selected {
+  border-color: #1d4ed8;
+  box-shadow: 0 0 0 2px rgba(29, 78, 216, 0.15);
+}
+
+.fdo-graph-node__check {
+  color: #1a8a3a;
+}
+
+.fdo-graph-node__pending {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #d7a32a;
+  display: inline-block;
+}
+
+.fdo-component-details {
+  background: #ffffff;
+  border: 1px solid #eef0f3;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.fdo-component-details h4 {
+  margin: 0 0 10px;
+  font-size: 14px;
+}
+
+.fdo-component-details__name {
+  font-weight: 600;
+  margin: 0 0 6px;
+}
+
+.fdo-component-details__description {
+  font-size: 13px;
+  color: #4b5563;
+  margin: 10px 0;
+}
+
+.fdo-component-details__section {
+  margin-top: 12px;
+}
+
+.fdo-component-details__label {
+  display: block;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #6b7280;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.fdo-component-details__section ul {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 13px;
+}
+
+.fdo-component-details__cta {
+  margin-top: 16px;
+  width: 100%;
+}
+
+.fdo-workflow-details {
+  font-size: 13.5px;
+  color: #4b5563;
+}
+
+/* ---------- FDO Builder page ---------- */
+
+.fdo-builder-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+}
+
+.fdo-builder-table thead th {
+  text-align: left;
+  font-size: 11.5px;
+  text-transform: uppercase;
+  color: #6b7280;
+  padding: 8px 10px;
+  border-bottom: 1px solid #eef0f3;
+}
+
+.fdo-builder-table tbody td {
+  padding: 9px 10px;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+/* ---------- Review & Validate page ---------- */
+
+.fdo-review-layout {
+  display: grid;
+  grid-template-columns: 220px 1fr 280px;
+  gap: 20px;
+}
+
+.fdo-review-itemlist {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.fdo-review-itemlist__label {
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #6b7280;
+  margin-bottom: 6px;
+}
+
+.fdo-review-itemlist__item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px;
+  border: none;
+  background: none;
+  text-align: left;
+  padding: 8px 8px;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.fdo-review-itemlist__item--active {
+  background: #eef2ff;
+  font-weight: 600;
+}
+
+.fdo-review-sectionnav {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  border-top: 1px solid #eef0f3;
+  padding-top: 10px;
+}
+
+.fdo-review-sectionnav__item {
+  text-align: left;
+  border: none;
+  background: none;
+  padding: 7px 8px;
+  font-size: 12.5px;
+  color: #4b5563;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.fdo-review-sectionnav__item--active {
+  background: #f1f3f6;
+  color: #1f2430;
+  font-weight: 600;
+}
+
+.fdo-review-form h4 {
+  margin: 0 0 14px;
+  font-size: 14px;
+}
+
+.fdo-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 14px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.fdo-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.fdo-chip {
+  background: #eef2ff;
+  color: #1d4ed8;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+.fdo-chip--suggested {
+  background: #f1e8fb;
+  color: #7c3aed;
+}
+
+.fdo-review-side {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.fdo-ai-panel {
+  background: #fafbff;
+  border: 1px solid #e3e6ea;
+  border-radius: 8px;
+  padding: 14px;
+}
+
+.fdo-ai-panel__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 700;
+  font-size: 13px;
+  margin-bottom: 10px;
+}
+
+.fdo-ai-panel__block {
+  margin-bottom: 12px;
+  font-size: 12.5px;
+}
+
+.fdo-ai-panel__label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: #4b5563;
+}
+
+.fdo-completeness-panel {
+  background: #ffffff;
+  border: 1px solid #e3e6ea;
+  border-radius: 8px;
+  padding: 14px;
+  text-align: center;
+}
+
+.fdo-completeness-panel__title {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.fdo-completeness-ring {
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  margin: 0 auto 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fdo-completeness-ring__inner {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  color: #6b7280;
+}
+
+.fdo-completeness-ring__inner strong {
+  font-size: 15px;
+  color: #1f2430;
+}
+
+.fdo-completeness-checklist {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  text-align: left;
+  font-size: 12.5px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* ---------- Publish page ---------- */
+
+.fdo-publish-layout {
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  gap: 20px;
+}
+
+.fdo-banner {
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-bottom: 16px;
+  font-size: 13.5px;
+}
+
+.fdo-banner--success {
+  background: #eaf6ee;
+  border: 1px solid #bfe3cb;
+  color: #1a7f37;
+}
+
+.fdo-banner--success p {
+  color: #2f6f44;
+}
+
+.fdo-banner--warning {
+  background: #fff6e6;
+  border: 1px solid #f3dca0;
+  color: #92660a;
+}
+
+.fdo-banner p {
+  margin: 4px 0 0;
+}
+
+.fdo-publish-list {
+  border: 1px solid #eef0f3;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.fdo-publish-list__header {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: #fafbfc;
+  font-size: 13px;
+  font-weight: 600;
+  border-bottom: 1px solid #eef0f3;
+}
+
+.fdo-publish-list__row {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 14px;
+  font-size: 13px;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.fdo-publish-options {
+  background: #fafbfc;
+  border: 1px solid #eef0f3;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.fdo-publish-options__title {
+  display: block;
+  font-weight: 700;
+  font-size: 13.5px;
+}
+
+.fdo-publish-options__lead {
+  font-size: 12px;
+  color: #6b7280;
+  margin: 2px 0 14px;
+}
+
+.fdo-publish-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 13px;
+  margin-bottom: 12px;
+  cursor: pointer;
+}
+
+.fdo-publish-option span {
+  display: flex;
+  flex-direction: column;
+}
+
+.fdo-publish-option small {
+  color: #6b7280;
+  font-size: 11.5px;
+}
+
+.fdo-publish-option--disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+/* ---------- Lifecycle phase layouts (Discovery / Composition / Execution / Publication) ---------- */
+
+.fdo-discovery-layout {
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  gap: 20px;
+}
+
+.fdo-discovery-layout__basket h4 {
+  margin: 0 0 10px;
+  font-size: 14px;
+}
+
+.fdo-composition-layout {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 20px;
+}
+
+.fdo-composition-layout__inbox h4 {
+  margin: 0 0 10px;
+  font-size: 14px;
+}
+
+.fdo-composition-layout__outbox-title {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid #eef0f3;
+}
+
+.fdo-btn--danger {
+  background: #fbeaea;
+  border-color: #e3b8b8;
+  color: #c0392b;
+}
+
+.fdo-execution-layout {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 20px;
+}
+
+.fdo-execution-layout__inbox h4 {
+  margin: 0 0 10px;
+  font-size: 14px;
+}
+
+.fdo-execution-runrow {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.fdo-run-control,
+.fdo-progress-panel,
+.fdo-provenance-panel,
+.fdo-outputs-panel,
+.fdo-suggestions-panel {
+  background: #fafbfc;
+  border: 1px solid #eef0f3;
+  border-radius: 8px;
+  padding: 14px;
+}
+
+.fdo-run-control h4,
+.fdo-progress-panel h4,
+.fdo-provenance-panel h4,
+.fdo-outputs-panel h4,
+.fdo-suggestions-panel h4 {
+  margin: 0 0 10px;
+  font-size: 13.5px;
+}
+
+.fdo-run-control .fdo-btn {
+  width: 100%;
+  margin-top: 8px;
+}
+
+.fdo-progress-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 12.5px;
+}
+
+.fdo-progress-list li {
+  display: flex;
+  justify-content: space-between;
+}
+
+.fdo-progress-list__status {
+  color: #6b7280;
+  text-transform: capitalize;
+}
+
+.fdo-provenance-panel dl {
+  margin: 0;
+  font-size: 12.5px;
+}
+
+.fdo-provenance-panel dt {
+  color: #6b7280;
+  margin-top: 8px;
+}
+
+.fdo-provenance-panel dd {
+  margin: 0;
+  font-weight: 600;
+}
+
+.fdo-outputs-panel {
+  margin-top: 4px;
+}
+
+.fdo-suggestions-panel {
+  margin-top: 16px;
+}
+
+.fdo-suggestions-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12.5px;
+}
+
+.fdo-suggestions-list__high {
+  color: #1a7f37;
+}
+
+.fdo-suggestions-list__medium {
+  color: #b98900;
+}
+
+.fdo-suggestions-list__low {
+  color: #8b93a1;
+}
+
+.fdo-publication-assets h4 {
+  margin: 14px 0 10px;
+  font-size: 14px;
+}
+
+.fdo-publication-assets__repo-title {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid #eef0f3;
+}
+
+.fdo-builder-table tbody tr {
+  cursor: pointer;
+}
+
+.fdo-published-list {
+  margin: 8px 0 0;
+  padding-left: 18px;
+  font-size: 12.5px;
+}
+
+.fdo-publish-pid-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 16px;
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid #eef0f3;
+}
+
+.fdo-publish-pid-row .fdo-publish-options {
+  flex: 1;
+  max-width: 280px;
+}
+
+.fdo-publish-pid-row .fdo-page__footer {
+  border-top: none;
+  margin-top: 0;
+  padding-top: 0;
+}
+
+/* ---------- Publication tab (two-source + schema-driven editor) ---------- */
+
+.fdo-pub-source-card {
+  background: #fafbfc;
+  border: 1px solid #eef0f3;
+  border-radius: 8px;
+  padding: 14px;
+  margin-bottom: 16px;
+}
+
+.fdo-pub-source-card h4 {
+  margin: 0 0 10px;
+  font-size: 14px;
+}
+
+.fdo-pub-source-card h5 {
+  margin: 14px 0 8px;
+  font-size: 12.5px;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.fdo-checklist {
+  list-style: none;
+  margin: 0 0 12px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.fdo-checklist li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.fdo-checklist__added {
+  color: #1a7f37;
+  font-size: 12px;
+  margin-left: auto;
+}
+
+.fdo-pub-workspace {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 20px;
+  margin-top: 8px;
+}
+
+.fdo-pub-workspace__list h4 {
+  margin: 0 0 10px;
+  font-size: 14px;
+}
+
+.fdo-basket-list__item--active {
+  background: #eef2ff;
+  border-radius: 6px;
+}
+
+.fdo-pub-workspace__editor {
+  background: #fafbfc;
+  border: 1px solid #eef0f3;
+  border-radius: 8px;
+  padding: 16px;
+  max-height: 560px;
+  overflow-y: auto;
+}
+
+.fdo-pub-workspace__editor h4 {
+  margin: 0 0 6px;
+  font-size: 15px;
+}
+
+.fdo-pub-workspace__type {
+  margin: 0 0 14px;
+  font-size: 12.5px;
+}
+
+.fdo-field-group {
+  border: none;
+  border-top: 1px solid #eef0f3;
+  margin: 0 0 14px;
+  padding: 12px 0 0;
+}
+
+.fdo-field-group legend,
+.fdo-field-group h5 {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #374151;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin: 0 0 10px;
+  padding: 0;
+}
+
+.fdo-page__footer-actions {
+  display: flex;
+  gap: 10px;
+}
+
+/* ---------- Publication pipeline strip + per-asset actions + relations/preview ---------- */
+
+.fdo-pipeline-strip {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 10px 0 18px;
+  font-size: 11.5px;
+}
+
+.fdo-pipeline-strip__step {
+  background: #eef2ff;
+  color: #3730a3;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.fdo-pipeline-strip__arrow {
+  color: #b0b6c0;
+}
+
+.fdo-btn--small {
+  padding: 4px 10px;
+  font-size: 12px;
+}
+
+.fdo-asset-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.fdo-asset-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 6px;
+  padding: 6px 8px;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  font-size: 13px;
+  min-width: 0;
+}
+
+.fdo-asset-row:hover {
+  background: #f3f4f6;
+}
+
+.fdo-asset-row--active {
+  background: #eef2ff;
+}
+
+.fdo-asset-row--active:hover {
+  background: #eef2ff;
+}
+
+.fdo-asset-row__title {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fdo-asset-row__pid-tag {
+  font-size: 10.5px;
+  color: #6b7280;
+  background: #f3f4f6;
+  border-radius: 999px;
+  padding: 1px 7px;
+  white-space: nowrap;
+}
+
+.fdo-pub-workspace__editor-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.fdo-tabs--compact .fdo-tab {
+  font-size: 12px;
+  padding: 5px 10px;
+}
+
+.fdo-relations-panel__sources {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  background: #fafbfc;
+  border: 1px solid #eef0f3;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 14px;
+}
+
+.fdo-relations-panel__sources-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #6b7280;
+  text-transform: uppercase;
+}
+
+.fdo-checkbox-inline {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12.5px;
+}
+
+.fdo-suggested-relations {
+  margin-bottom: 18px;
+}
+
+.fdo-suggested-relations h5,
+.fdo-relations-panel h5 {
+  font-size: 12.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #374151;
+  margin: 0 0 10px;
+}
+
+.fdo-suggested-relations ul,
+.fdo-accepted-relations {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.fdo-suggested-relations li,
+.fdo-accepted-relations li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  background: #fafbfc;
+  border: 1px solid #eef0f3;
+  border-radius: 6px;
+  padding: 8px 10px;
+}
+
+.fdo-relation-type {
+  font-weight: 700;
+  font-size: 11px;
+  color: #6d28d9;
+  background: #f5f3ff;
+  border-radius: 4px;
+  padding: 2px 8px;
+  white-space: nowrap;
+}
+
+.fdo-relation-target {
+  flex: 1;
+}
+
+.fdo-relation-source-tag {
+  font-size: 11px;
+  color: #6b7280;
+}
+
+.fdo-preview-panel {
+  background: #0d1117;
+  border-radius: 8px;
+  padding: 14px;
+  max-height: 480px;
+  overflow: auto;
+}
+
+.fdo-preview-json {
+  color: #c9d1d9;
+  font-family: 'SF Mono', Consolas, monospace;
+  font-size: 12px;
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+/* ---------- Per-tab toolboxes, FAIR Assessment, Preview & Publish summary ---------- */
+
+.fdo-tab-toolbar {
+  display: flex;
+  gap: 8px;
+  margin: 12px 0 16px;
+}
+
+.fdo-tab-toolbar__note {
+  font-size: 12.5px;
+  color: #6b7280;
+  background: #f9fafb;
+  border-radius: 6px;
+  padding: 8px 10px;
+  margin: -4px 0 14px;
+}
+
+.fdo-discover-config,
+.fdo-add-relation-form {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  background: #fafbfc;
+  border: 1px solid #eef0f3;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 14px;
+}
+
+.fdo-discover-config__label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #6b7280;
+  text-transform: uppercase;
+}
+
+.fdo-add-relation-form .fdo-select,
+.fdo-add-relation-form .fdo-input {
+  width: auto;
+}
+
+.fdo-validate-note {
+  font-size: 12.5px;
+  border-radius: 6px;
+  padding: 8px 10px;
+  margin: -4px 0 14px;
+}
+
+.fdo-validate-note--ok {
+  background: #ecfdf3;
+  color: #1a7f37;
+}
+
+.fdo-validate-note--warn {
+  background: #fff7e6;
+  color: #b98900;
+}
+
+.fdo-fair-panel__note {
+  font-size: 12px;
+  color: #6b7280;
+  margin: 0 0 16px;
+}
+
+.fdo-fair-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 22px;
+}
+
+.fdo-fair-bar-row {
+  display: grid;
+  grid-template-columns: 100px 1fr 44px;
+  align-items: center;
+  gap: 10px;
+  font-size: 12.5px;
+}
+
+.fdo-fair-bar-track {
+  background: #eef0f3;
+  border-radius: 999px;
+  height: 8px;
+  overflow: hidden;
+}
+
+.fdo-fair-bar-fill {
+  background: linear-gradient(90deg, #6d28d9, #8b5cf6);
+  height: 100%;
+  border-radius: 999px;
+}
+
+.fdo-fair-bar-row__pct {
+  text-align: right;
+  font-weight: 600;
+}
+
+.fdo-fair-improvements {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 13px;
+  color: #b45309;
+}
+
+.fdo-publish-summary {
+  background: #fafbfc;
+  border: 1px solid #eef0f3;
+  border-radius: 8px;
+  padding: 14px;
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.fdo-publish-summary__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+}
+
+.fdo-publish-summary__label {
+  font-weight: 700;
+  color: #374151;
+}
+
+.fdo-publish-summary__pid-missing {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #6b7280;
+}

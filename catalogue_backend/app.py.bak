@@ -1,0 +1,251 @@
+# =====================================================
+# FDO Generation
+# =====================================================
+import json
+import uuid as uuid_lib
+from datetime import datetime, timezone
+from pathlib import Path
+from rocrate.rocrate import ROCrate
+from rocrate.model.entity import Entity
+
+# Map Jupyter kernel names to actual programming languages
+KERNEL_TO_LANGUAGE = {
+    "IRkernel": "R",
+    "ir": "R",
+    "python3": "Python",
+    "ipykernel": "Python",
+    "julia-1.x": "Julia",
+    "julia": "Julia",
+    "bash": "Bash",
+}
+
+
+class FDORequest(BaseModel):
+    workflow_path: str
+    title: Optional[str] = None
+    description: Optional[str] = None
+    author: Optional[str] = None
+
+
+def parse_naavrewf(workflow_path: str) -> Dict[str, Any]:
+    with open(workflow_path, "r") as f:
+        data = json.load(f)
+
+    chart = data.get("chart", {})
+    nodes = chart.get("nodes", {})
+    links = chart.get("links", {})
+
+    components = []
+    for node_id, node in nodes.items():
+        cell = node.get("properties", {}).get("cell", {})
+
+        # FIX 1: map kernel name to actual programming language
+        kernel = cell.get("kernel", "")
+        language = KERNEL_TO_LANGUAGE.get(kernel, kernel)
+
+        # FIX 2: description is a copy of title in .naavrewf — leave empty if identical
+        raw_title = cell.get("title", "")
+        raw_desc = cell.get("description", "")
+        description = "" if raw_desc == raw_title else raw_desc
+
+        # FIX 3: split container_image into version tag and full runtime platform
+        container_image = cell.get("container_image", "")
+        image_tag = container_image.split(":")[-1] if ":" in container_image else container_image
+
+        components.append({
+            "id": node_id,
+            "title": raw_title,
+            "description": description,
+            "kernel": kernel,
+            "language": language,
+            "version": cell.get("version", 1),
+            "owner": cell.get("owner", ""),
+            "virtual_lab": cell.get("virtual_lab", ""),
+            "container_image": container_image,
+            "image_tag": image_tag,
+            "source_url": cell.get("source_url", ""),
+            "inputs": cell.get("inputs", []),
+            "outputs": cell.get("outputs", []),
+            # FIX 4: params now include name, type, and default_value
+            "params": cell.get("params", []),
+            "dependencies": cell.get("dependencies", []),
+            "created": cell.get("created", ""),
+            "modified": cell.get("modified", ""),
+        })
+
+    connections = []
+    for link_id, link in links.items():
+        connections.append({
+            "id": link_id,
+            "from_node": link["from"]["nodeId"],
+            "from_port": link["from"]["portId"],
+            "to_node": link["to"]["nodeId"],
+            "to_port": link["to"]["portId"],
+        })
+
+    return {
+        "components": components,
+        "connections": connections,
+        "virtual_lab": components[0]["virtual_lab"] if components else "",
+    }
+
+
+def generate_ro_crate(
+    workflow_data: Dict[str, Any],
+    workflow_path: str,
+    title: str,
+    description: str,
+    author: str,
+    output_dir: str
+) -> str:
+    crate = ROCrate()
+
+    # Root dataset metadata
+    crate.root_dataset["name"] = title
+    crate.root_dataset["description"] = description
+    crate.root_dataset["datePublished"] = datetime.now(timezone.utc).isoformat()
+    crate.root_dataset["license"] = "https://creativecommons.org/licenses/by/4.0/"
+    if author:
+        crate.root_dataset["author"] = {
+            "@id": f"#author-{author.replace(' ', '-').lower()}",
+            "@type": "Person",
+            "name": author
+        }
+
+    # Add the workflow file itself
+    wf_file = crate.add_file(
+        workflow_path,
+        dest_path="workflow-flm.naavrewf",
+        properties={
+            "name": Path(workflow_path).name,
+            "encodingFormat": "application/json",
+            "description": "NaaVRE workflow definition file"
+        }
+    )
+    crate.root_dataset["hasPart"] = [wf_file]
+
+    # Add each component as a SoftwareApplication entity
+    component_entities = {}
+    for comp in workflow_data["components"]:
+        comp_id = f"#component-{comp['id']}"
+
+        props = {
+            "@type": ["SoftwareApplication", "HowToStep"],
+            "name": comp["title"],
+            "version": str(comp["version"]),
+            # FIX 1: actual language (R, Python) not kernel name (IRkernel)
+            "programmingLanguage": comp["language"],
+            # FIX 3: softwareVersion = git hash only, runtimePlatform = full image
+            "softwareVersion": comp["image_tag"],
+            "runtimePlatform": comp["container_image"],
+            "url": comp["source_url"],
+            "dateCreated": comp["created"],
+            "dateModified": comp["modified"],
+            "author": {
+                "@id": f"#person-{comp['owner']}",
+                "@type": "Person",
+                "email": comp["owner"]
+            },
+            "input": [
+                {
+                    "@id": f"#input-{i['name']}",
+                    "@type": "FormalParameter",
+                    "name": i["name"],
+                    "additionalType": i["type"]
+                }
+                for i in comp["inputs"]
+            ],
+            "output": [
+                {
+                    "@id": f"#output-{o['name']}",
+                    "@type": "FormalParameter",
+                    "name": o["name"],
+                    "additionalType": o["type"]
+                }
+                for o in comp["outputs"]
+            ],
+            "softwareRequirements": [d["name"] for d in comp["dependencies"]],
+        }
+
+        # FIX 2: only add description if it is not a duplicate of the title
+        if comp["description"]:
+            props["description"] = comp["description"]
+
+        # FIX 4: add params as structured PropertyValue entries with default values
+        if comp["params"]:
+            props["variablesMeasured"] = [
+                {
+                    "@id": f"#param-{p['name']}",
+                    "@type": "PropertyValue",
+                    "name": p["name"],
+                    "additionalType": p.get("type", "str"),
+                    "defaultValue": p.get("default_value", ""),
+                }
+                for p in comp["params"]
+            ]
+
+        entity = crate.add(Entity(crate, comp_id, properties=props))
+        component_entities[comp["id"]] = entity
+
+    # Add connections as dataflow entities
+    for conn in workflow_data["connections"]:
+        conn_id = f"#connection-{conn['id']}"
+        crate.add(Entity(crate, conn_id, properties={
+            "@type": "DataFeed",
+            "name": conn["from_port"],
+            "description": f"{conn['from_port']} → {conn['to_port']}",
+            "sourceOrganization": {"@id": f"#component-{conn['from_node']}"},
+            "targetCollection": {"@id": f"#component-{conn['to_node']}"},
+        }))
+
+    # Write the crate
+    Path(output_dir).mkdir(parents=True, exist_ok=True)
+    crate.write(output_dir)
+    return output_dir
+
+
+@app.post("/generate-fdo")
+def generate_fdo(payload: FDORequest):
+    workflow_path = payload.workflow_path.strip()
+
+    if not workflow_path:
+        raise HTTPException(status_code=400, detail="workflow_path is required.")
+
+    if not os.path.exists(workflow_path):
+        raise HTTPException(
+            status_code=404,
+            detail=f"Workflow file not found: {workflow_path}"
+        )
+
+    try:
+        workflow_data = parse_naavrewf(workflow_path)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Failed to parse workflow: {e}")
+
+    title = payload.title or f"FDO for {Path(workflow_path).stem}"
+    description = payload.description or f"RO-Crate FDO generated from {Path(workflow_path).name}"
+    author = payload.author or ""
+
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    output_dir = f"/home/nafiseh/fdo-output/{Path(workflow_path).stem}_{timestamp}"
+
+    try:
+        crate_path = generate_ro_crate(
+            workflow_data=workflow_data,
+            workflow_path=workflow_path,
+            title=title,
+            description=description,
+            author=author,
+            output_dir=output_dir
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to generate RO-Crate: {e}")
+
+    return {
+        "status": "ok",
+        "crate_path": crate_path,
+        "workflow": Path(workflow_path).name,
+        "components": len(workflow_data["components"]),
+        "connections": len(workflow_data["connections"]),
+        "virtual_lab": workflow_data["virtual_lab"],
+    }
