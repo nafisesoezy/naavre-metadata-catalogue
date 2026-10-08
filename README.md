@@ -1,104 +1,144 @@
-# naavre_metadata_catalogue
+# FAIR Digital Objects for NaaVRE Virtual Labs
 
-[![Github Actions Status](https://github.com/nafisesoezy/naavre-metadata-catalogue/workflows/Build/badge.svg)](https://github.com/nafisesoezy/naavre-metadata-catalogue/actions/workflows/build.yml)
+## Overview
 
-A JupyterLab extension.
+This project develops a FAIR Digital Object (FDO) framework for managing and publishing research assets within NaaVRE Virtual Labs.
 
-## Requirements
+The framework uses RO-Crate to represent scientific workflows, datasets, and reusable workflow components as FAIR Digital Objects, supporting the FAIR principles, reproducibility, traceability, and provenance.
 
-- JupyterLab >= 4.0.0
+As part of this work, FDO Studio has been developed and integrated into the NaaVRE Virtual Lab environment. It provides a unified interface for discovering research assets, collecting and enriching their metadata, and preparing them for publication as reusable FAIR Digital Objects.
 
-## Install
+## Objectives
 
-To install the extension, execute:
+The project aims to:
 
-```bash
-pip install naavre_metadata_catalogue
-```
+- Define FAIR Digital Objects for scientific workflows, datasets, and reusable workflow components.
+- Design RO-Crate packaging that links research assets through structured metadata and persistent identifiers.
+- Adapt existing RO-Crate profiles to define metadata profiles for these objects, supporting FAIR principles, reproducibility, traceability, and provenance.
+- Extract and enrich metadata from different research environments, including catalogues, GitHub repositories, and NaaVRE.
+- Enable the publication and discovery of connected research assets across Virtual Labs.
 
-## Uninstall
+## Implemented Work
 
-To remove the extension, execute:
+### 1. FAIR Digital Object Definitions and Metadata Profiles
 
-```bash
-pip uninstall naavre_metadata_catalogue
-```
+Three main FDO types have been defined:
 
-## Contributing
+- **Workflow FDO:** Represents a scientific workflow, including its structure, components, inputs, outputs, and execution requirements.
+- **Dataset FDO:** Represents a dataset, including its description, identifiers, versions, access information, and provenance.
+- **Component FDO:** Represents a reusable computational component, including its functionality, parameters, input/output ports, and software dependencies.
 
-### Development install
+Existing RO-Crate profiles have been reviewed and adapted to define structured metadata profiles for these objects.
 
-Note: You will need NodeJS to build the extension package.
+The metadata profiles are designed to support FAIR principles and provide the information needed for research asset discovery, reuse, reproducibility, and provenance tracking.
 
-The `jlpm` command is JupyterLab's pinned version of
-[yarn](https://yarnpkg.com/) that is installed with JupyterLab. You may use
-`yarn` or `npm` in lieu of `jlpm` below.
+For workflows, the metadata model distinguishes between:
 
-```bash
-# Clone the repo to your local environment
-# Change directory to the naavre_metadata_catalogue directory
+- **Workflow Profile:** Describes a workflow independently of a particular execution.
+- **Workflow Run Profile:** Describes a specific execution, including actual inputs, parameters, execution status, outputs, and provenance.
 
-# Set up a virtual environment and install package in development mode
-python -m venv .venv
-source .venv/bin/activate
-pip install --editable "."
+### 2. RO-Crate Packaging Design
 
-# Link your development version of the extension with JupyterLab
-jupyter labextension develop . --overwrite
+An RO-Crate-based packaging approach has been designed to represent workflows, datasets, and components as reusable research objects.
 
-# Rebuild extension Typescript source after making changes
-# IMPORTANT: Unlike the steps above which are performed only once, do this step
-# every time you make a change.
-jlpm build
-```
+The approach defines how structured metadata, identifiers, and references to related assets can be included in RO-Crate packages.
 
-You can watch the source directory and run JupyterLab at the same time in different terminals to watch for changes in the extension's source and automatically rebuild the extension.
+It provides the foundation for linking research assets and representing their relationships in a machine-readable format.
 
-```bash
-# Watch the source directory in one terminal, automatically rebuilding when needed
-jlpm watch
-# Run JupyterLab in another terminal
-jupyter lab
-```
+### 3. FDO Studio Integration with NaaVRE
 
-With the watch command running, every saved change will immediately be built locally and available in your running JupyterLab. Refresh JupyterLab to load the change in your browser (you may need to wait several seconds for the extension to be rebuilt).
+FDO Studio has been integrated into the NaaVRE Virtual Lab environment to support research asset discovery and metadata management.
 
-By default, the `jlpm build` command generates the source maps for this extension to make it easier to debug using the browser dev tools. To also generate source maps for the JupyterLab core extensions, you can run the following command:
+The studio provides three entry points for capturing research assets:
 
-```bash
-jupyter lab build --minimize=False
-```
+1. **Catalogue / Repository:** Discover and select datasets and other research assets from metadata catalogues and repositories.
+2. **GitHub Repository:** Retrieve workflow definitions, source code, and related metadata from GitHub repositories.
+3. **NaaVRE:** Access workflows and reusable components available within the NaaVRE environment.
 
-### Development uninstall
+These entry points bring research assets from different environments into a common metadata management workflow.
 
-```bash
-pip uninstall naavre_metadata_catalogue
-```
+### 4. Metadata Harvesting and Enrichment
 
-In development mode, you will also need to remove the symlink created by `jupyter labextension develop`
-command. To find its location, you can run `jupyter labextension list` to figure out where the `labextensions`
-folder is located. Then you can remove the symlink named `naavre-metadata-catalogue` within that folder.
+A metadata harvesting approach has been developed to collect available metadata from each source environment according to the defined FDO metadata profiles.
 
-### Testing the extension
+Metadata is extracted as far as possible from existing sources, including:
 
-#### Frontend tests
+- Catalogue records and repository metadata
+- GitHub repository information and workflow definition files
+- NaaVRE workflow and component specifications
 
-This extension is using [Jest](https://jestjs.io/) for JavaScript code testing.
+The approach identifies metadata that can be automatically harvested and fields that are missing or incomplete.
 
-To execute them, execute:
+Metadata enrichment is considered for filling these gaps, with the aim of improving metadata completeness and consistency while preserving traceability to the original sources.
 
-```sh
-jlpm
-jlpm test
-```
+## Planned Work
 
-#### Integration tests
+### 1. Persistent Identifier Management
 
-This extension uses [Playwright](https://playwright.dev/docs/intro) for the integration tests (aka user level tests).
-More precisely, the JupyterLab helper [Galata](https://github.com/jupyterlab/jupyterlab/tree/master/galata) is used to handle testing the extension in JupyterLab.
+Develop an internal persistent identifier management system for FDO Studio.
 
-More information are provided within the [ui-tests](./ui-tests/README.md) README.
+The system will support the assignment and management of identifiers for workflows, datasets, and components, allowing assets to be consistently referenced and linked across Virtual Labs.
 
-### Packaging the extension
+### 2. Workflow Run Metadata Capture
 
-See [RELEASE](RELEASE.md)
+Extend metadata harvesting to capture Workflow Run Profile metadata directly from NaaVRE execution records.
+
+This includes:
+
+- Workflow execution identifiers and status
+- Execution start and end times
+- Actual input datasets and parameter values
+- Executed components and their versions
+- Generated outputs
+- Execution provenance
+
+This will connect workflow definitions with their actual executions and support reproducibility and traceability.
+
+### 3. Research Asset Relationship Management
+
+Capture relationships between research assets as first-class metadata.
+
+Examples include:
+
+- A dataset used by a workflow
+- A model executed by a workflow
+- A dataset generated by a workflow
+- A component included in a workflow
+
+These relationships will enable research assets to be represented as connected objects rather than isolated metadata records.
+
+### 4. Connected FDO Publication
+
+Develop the publication process for research assets, their metadata, and their relationships as connected FAIR Digital Objects.
+
+This will include:
+
+- Generating RO-Crate packages containing structured metadata and asset references.
+- Preserving persistent identifiers and relationships between FDOs.
+- Aligning metadata with LTER-LIFE catalogue requirements.
+- Supporting publication and discovery of connected FDOs through the metadata catalogue.
+
+## Related Platforms and Standards
+
+- **NaaVRE:** Virtual Lab platform for composing and executing scientific workflows.
+- **FDO Studio:** Integrated interface for research asset discovery, metadata harvesting, enrichment, and FDO preparation.
+- **LTER-LIFE Metadata Catalogue:** Target catalogue for metadata publication and discovery.
+- **RO-Crate:** Standard for packaging research artifacts with structured, machine-readable metadata.
+- **Workflow RO-Crate:** Profile for describing computational workflows.
+- **Workflow Run RO-Crate:** Profiles for describing workflow executions and provenance.
+- **BioDT:** Reference project for existing workflow metadata practices and profiles.
+- **FAIR Digital Objects:** Approach for representing research assets as identifiable, machine-actionable digital objects.
+
+## References
+
+- [RO-Crate Specification](https://www.researchobject.org/ro-crate/)
+- [Workflow Run RO-Crate](https://www.researchobject.org/workflow-run-crate/)
+- [FAIR Principles](https://www.go-fair.org/fair-principles/)
+
+## Project Status
+
+**Active development**
+
+FDO Studio is integrated into NaaVRE, with research asset discovery and metadata harvesting supported through catalogue/repository, GitHub, and NaaVRE entry points.
+
+Current development priorities include persistent identifier management, workflow execution metadata capture, explicit relationships between research assets, and publication of connected FAIR Digital Objects.
