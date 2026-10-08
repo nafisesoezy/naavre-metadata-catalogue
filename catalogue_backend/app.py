@@ -706,6 +706,9 @@ def parse_naavrewf(workflow_path: str) -> Dict[str, Any]:
             "virtual_lab": cell.get("virtual_lab", ""),
             "container_image": container_image,
             "image_tag": image_tag,
+            "base_container_image": cell.get("base_container_image") or {},
+            "secrets": [x.get("name", "") for x in cell.get("secrets", [])],
+            "confs": [x.get("name", "") for x in cell.get("confs", [])],
             "source_url": cell.get("source_url", ""),
             "inputs": cell.get("inputs", []),
             "outputs": cell.get("outputs", []),
@@ -734,6 +737,7 @@ def parse_naavrewf(workflow_path: str) -> Dict[str, Any]:
         "keywords": readme_data.get("keywords", []),
         "purpose": readme_data.get("purpose", ""),
         "license_url": license_url or "https://www.apache.org/licenses/LICENSE-2.0",
+        "license_detected": license_url,
         "temporal_coverage": notebook_data.get("temporal_coverage", {}),
         "geographic_scope": notebook_data.get("geographic_scope", ""),
         "input_datasets": notebook_data.get("input_datasets", []),
@@ -1275,6 +1279,89 @@ def compute_terminal_outputs(workflow_data: Dict[str, Any]) -> List[str]:
     return terminal
 
 
+def unique(values: List[Any]) -> List[Any]:
+    return [v for v in dict.fromkeys(values) if v not in (None, "")]
+
+
+def compute_step_order(workflow_data: Dict[str, Any]) -> List[str]:
+    """Component titles in an order where every component comes after
+    the ones it receives data from (several valid orders may exist)."""
+    comps = {c["id"]: c for c in workflow_data.get("components", [])}
+    upstream = {cid: set() for cid in comps}
+    for conn in workflow_data.get("connections", []):
+        if conn["from_node"] in comps and conn["to_node"] in comps:
+            upstream[conn["to_node"]].add(conn["from_node"])
+    order, placed = [], set()
+    while len(order) < len(comps):
+        ready = [cid for cid in comps if cid not in placed and upstream[cid] <= placed]
+        if not ready:  # cycle in the chart: append the rest as they are
+            ready = [cid for cid in comps if cid not in placed]
+        for cid in ready:
+            placed.add(cid)
+            order.append(comps[cid].get("title") or cid)
+    return order
+
+
+def build_workflow_metadata(workflow_data: Dict[str, Any], ref: str, commit_sha: str) -> Dict[str, Any]:
+    """Workflow-level fields that can be read from the parsed .naavrewf
+    and its repository. Fields with no source here (ORCID, image digests,
+    dependency versions, engine version, everything about a run) are left
+    for manual input."""
+    comps = workflow_data.get("components", [])
+    titles = {c["id"]: c.get("title") or c["id"] for c in comps}
+    connections = workflow_data.get("connections", [])
+    consumed = {(c["to_node"], c["to_port"]) for c in connections}
+
+    parameters: Dict[str, str] = {}
+    for comp in comps:
+        for p in comp.get("params", []):
+            name = p.get("name", "")
+            if name and name not in parameters:
+                parameters[name] = f"{name} ({p.get('type', 'str')}) = {p.get('default_value', '')}"
+
+    base_images = []
+    for comp in comps:
+        base = comp.get("base_container_image") or {}
+        base_images.extend([base.get("build"), base.get("runtime")])
+
+    created = sorted(c["created"] for c in comps if c.get("created"))
+    modified = sorted(c["modified"] for c in comps if c.get("modified"))
+    temporal = format_temporal_range(workflow_data.get("temporal_coverage", {}))
+
+    return {
+        "workflowType": "ComputationalWorkflow (Workflow RO-Crate)",
+        "workflowLanguage": "NaaVRE workflow (.naavrewf)",
+        "keywords": workflow_data.get("keywords", []),
+        "purpose": workflow_data.get("purpose", ""),
+        "virtualLab": workflow_data.get("virtual_lab", ""),
+        "spatialCoverage": workflow_data.get("geographic_scope", ""),
+        "temporalCoverage": temporal,
+        "license": workflow_data.get("license_detected", ""),  # empty when the repo has no recognised LICENSE
+        "creators": unique([c.get("owner") for c in comps]),  # emails only, no name or ORCID in source
+        "version": commit_sha[:7] if re.fullmatch(r"[0-9a-f]{40}", commit_sha or "") else "",  # short commit; no release tag lookup
+        "branch": ref,
+        "dateCreated": created[0][:10] if created else "",
+        "dateModified": modified[-1][:10] if modified else "",
+        "parameters": "\n".join(parameters.values()),
+        "connections": "\n".join(
+            f"{titles.get(c['from_node'], c['from_node'])}.{c['from_port']} -> "
+            f"{titles.get(c['to_node'], c['to_node'])}.{c['to_port']}"
+            for c in connections
+        ),
+        "declaredInputs": unique([
+            i.get("name", "") for comp in comps for i in comp.get("inputs", [])
+            if (comp["id"], i.get("name")) not in consumed
+        ]),
+        "stepOrder": compute_step_order(workflow_data),
+        "requiredSecrets": unique([n for comp in comps for n in comp.get("secrets", []) + comp.get("confs", [])]),
+        "containerImages": unique([c.get("container_image") for c in comps]),
+        "baseImages": unique(base_images),
+        "languages": unique([c.get("language") for c in comps]),
+        "dependencies": unique([d for comp in comps for d in comp.get("dependencies", [])]),  # names only
+        "metadataDate": datetime.now().strftime("%Y-%m-%d"),
+    }
+
+
 def fetch_commit_sha(owner: str, repo: str, ref: str) -> str:
     resp = requests.get(f"{GITHUB_API_BASE}/repos/{owner}/{repo}/commits/{ref}", headers=github_headers(), timeout=20)
     if resp.status_code == 200:
@@ -1530,6 +1617,7 @@ def enrich_draft(payload: EnrichRequest):
         metadata["repositoryUrl"] = payload.repo_url
         metadata["commitHash"] = fetch_commit_sha(owner, repo, ref)
         metadata["naavreVersion"] = ""
+        metadata.update(build_workflow_metadata(workflow_data, ref, metadata["commitHash"]))
 
     elif payload.type == "component":
         if "::component::" in payload.path:

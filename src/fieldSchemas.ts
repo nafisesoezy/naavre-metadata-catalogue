@@ -12,6 +12,10 @@ export interface FieldDef {
   label: string;
   kind: FieldKind;
   required?: boolean;
+  // Required only when the field named here has a value. Used for the
+  // Workflow Run fields: a workflow can be published without a run, but
+  // once a run identifier is given the core run fields must be complete.
+  requiredWhen?: string;
 }
 
 export interface FieldGroup {
@@ -76,19 +80,105 @@ export const DATASET_SCHEMA: FieldGroup[] = [
   }
 ];
 
+// Two parts in one form: 'Workflow' describes the definition (identity,
+// rights, structure, environment, metadata quality) and 'Workflow Run'
+// describes one execution of it. The original nine keys (workflowName,
+// description, workflowFile, components, inputDatasets, outputDatasets,
+// repositoryUrl, commitHash, naavreVersion) are kept unchanged.
 export const WORKFLOW_SCHEMA: FieldGroup[] = [
   {
-    group: 'Workflow Details',
+    group: 'Workflow',
     fields: [
+      // Identity and description
+      { key: 'persistentIdentifier', label: 'Persistent identifier', kind: 'text' },
       { key: 'workflowName', label: 'Workflow name', kind: 'text', required: true },
       { key: 'description', label: 'Description', kind: 'textarea', required: true },
+      { key: 'workflowType', label: 'Type and profile declaration', kind: 'text', required: true },
+      { key: 'keywords', label: 'Keywords', kind: 'tags' },
+      { key: 'purpose', label: 'Purpose / research question', kind: 'textarea' },
+      { key: 'virtualLab', label: 'Virtual lab', kind: 'text' },
+      { key: 'scientificDomain', label: 'Scientific domain', kind: 'text' },
+      { key: 'spatialCoverage', label: 'Spatial coverage', kind: 'text' },
+      { key: 'temporalCoverage', label: 'Temporal coverage', kind: 'text' },
+
+      // Rights and attribution
+      { key: 'license', label: 'License', kind: 'text', required: true },
+      { key: 'creators', label: 'Creators (name, ORCID, affiliation)', kind: 'tags', required: true },
+      { key: 'version', label: 'Version', kind: 'text', required: true },
+      { key: 'repositoryUrl', label: 'Repository URL', kind: 'text', required: true },
+      { key: 'commitHash', label: 'Commit hash', kind: 'text', required: true },
+      { key: 'datePublished', label: 'Date published', kind: 'date' },
+      { key: 'dateCreated', label: 'Date created', kind: 'date' },
+      { key: 'dateModified', label: 'Date modified', kind: 'date' },
+      { key: 'accessRights', label: 'Access rights', kind: 'text' },
+      { key: 'branch', label: 'Branch', kind: 'text' },
+      { key: 'publisher', label: 'Publisher', kind: 'text' },
+      { key: 'citation', label: 'Citation / publications', kind: 'tags' },
+
+      // Definition
       { key: 'workflowFile', label: 'Workflow file', kind: 'text', required: true },
-      { key: 'components', label: 'Components', kind: 'tags' },
-      { key: 'inputDatasets', label: 'Input datasets', kind: 'tags' },
-      { key: 'outputDatasets', label: 'Output datasets', kind: 'tags' },
-      { key: 'repositoryUrl', label: 'Repository URL', kind: 'text' },
-      { key: 'commitHash', label: 'Commit hash', kind: 'text' },
-      { key: 'naavreVersion', label: 'NaaVRE version', kind: 'text' }
+      { key: 'workflowLanguage', label: 'Workflow language', kind: 'text', required: true },
+      { key: 'components', label: 'Components', kind: 'tags', required: true },
+      { key: 'parameters', label: 'Parameters (name, type, default)', kind: 'textarea', required: true },
+      { key: 'connections', label: 'Connections between ports', kind: 'textarea' },
+      { key: 'declaredInputs', label: 'Declared inputs', kind: 'tags' },
+      { key: 'outputDatasets', label: 'Declared outputs', kind: 'tags' },
+      { key: 'inputDatasets', label: 'Input datasets (reference)', kind: 'tags' },
+      { key: 'inputDatasetIdentifiers', label: 'Input dataset identifier and version', kind: 'tags' },
+      { key: 'stepOrder', label: 'Step order', kind: 'tags' },
+      { key: 'parameterDescriptions', label: 'Parameter meaning, units, ranges', kind: 'textarea' },
+      { key: 'requiredSecrets', label: 'Required secrets and configuration (names)', kind: 'tags' },
+      { key: 'diagram', label: 'Diagram', kind: 'text' },
+
+      // Environment
+      { key: 'containerImages', label: 'Container images', kind: 'tags', required: true },
+      { key: 'imageDigests', label: 'Image digests', kind: 'tags' },
+      { key: 'baseImages', label: 'Base build and runtime image', kind: 'tags' },
+      { key: 'languages', label: 'Languages', kind: 'tags' },
+      { key: 'dependencies', label: 'Dependencies with versions, or environment file', kind: 'tags' },
+      { key: 'workflowEngine', label: 'Workflow engine and version', kind: 'text' },
+      { key: 'resourceManager', label: 'Resource manager / cluster', kind: 'text' },
+      { key: 'naavreVersion', label: 'NaaVRE version', kind: 'text' },
+      { key: 'hardwareRequirements', label: 'Hardware requirements', kind: 'text' },
+      { key: 'executionInstructions', label: 'Execution instructions', kind: 'textarea' },
+
+      // Quality and metadata provenance
+      { key: 'fieldSources', label: 'Source per field', kind: 'textarea' },
+      { key: 'completeness', label: 'Completeness per objective', kind: 'text' },
+      { key: 'metadataDate', label: 'Metadata date', kind: 'date' },
+      { key: 'metadataContact', label: 'Metadata contact', kind: 'text' },
+      { key: 'fieldConfidence', label: 'Confidence and validation status per field', kind: 'textarea' },
+      { key: 'tests', label: 'Tests and expected outputs', kind: 'tags' },
+      { key: 'knownLimitations', label: 'Known limitations', kind: 'textarea' }
+    ]
+  },
+  {
+    group: 'Workflow Run',
+    fields: [
+      { key: 'runIdentifier', label: 'Run identifier', kind: 'text' },
+      { key: 'runWorkflowReference', label: 'Workflow reference (PID and commit)', kind: 'text', requiredWhen: 'runIdentifier' },
+      { key: 'runStatus', label: 'Status', kind: 'text', requiredWhen: 'runIdentifier' },
+      { key: 'runStartedAt', label: 'Started', kind: 'text', requiredWhen: 'runIdentifier' },
+      { key: 'runFinishedAt', label: 'Finished', kind: 'text', requiredWhen: 'runIdentifier' },
+      { key: 'runParameterValues', label: 'Actual parameter values', kind: 'textarea', requiredWhen: 'runIdentifier' },
+      { key: 'runInputs', label: 'Actual inputs', kind: 'tags', requiredWhen: 'runIdentifier' },
+      { key: 'runOutputs', label: 'Actual outputs (reference)', kind: 'tags', requiredWhen: 'runIdentifier' },
+      {
+        key: 'runExecutedSteps',
+        label: 'Executed steps (component PID, image, status, exit code, times)',
+        kind: 'textarea',
+        requiredWhen: 'runIdentifier'
+      },
+      { key: 'runStepDependencies', label: 'Step dependencies', kind: 'textarea' },
+      { key: 'runOutputChecksums', label: 'Output checksum and size', kind: 'textarea' },
+      { key: 'runSubmittedBy', label: 'Submitted by', kind: 'text' },
+      { key: 'runDuration', label: 'Duration', kind: 'text' },
+      { key: 'runLocation', label: 'Location (cluster, virtual lab)', kind: 'text' },
+      { key: 'runResourceUsage', label: 'Resource usage', kind: 'textarea' },
+      { key: 'runErrorMessage', label: 'Error message', kind: 'textarea' },
+      { key: 'runLogsReference', label: 'Logs reference', kind: 'text' },
+      { key: 'runObservations', label: 'Observations', kind: 'textarea' },
+      { key: 'runReproduced', label: 'Reproduced by re-run', kind: 'text' }
     ]
   }
 ];
@@ -182,10 +272,23 @@ export function schemaFor(type: 'dataset' | 'workflow' | 'component'): FieldGrou
   return DATASET_SCHEMA;
 }
 
-export function requiredFieldKeys(type: 'dataset' | 'workflow' | 'component'): string[] {
+function isEmpty(value: unknown): boolean {
+  if (Array.isArray(value)) return value.length === 0;
+  return value === undefined || value === null || value === '';
+}
+
+export function isFieldRequired(field: FieldDef, metadata: Record<string, unknown> = {}): boolean {
+  if (field.required) return true;
+  return !!field.requiredWhen && !isEmpty(metadata[field.requiredWhen]);
+}
+
+export function requiredFieldKeys(
+  type: 'dataset' | 'workflow' | 'component',
+  metadata: Record<string, unknown> = {}
+): string[] {
   return schemaFor(type).reduce<string[]>((keys, group) => {
     group.fields.forEach(f => {
-      if (f.required) keys.push(f.key);
+      if (isFieldRequired(f, metadata)) keys.push(f.key);
     });
     return keys;
   }, []);
@@ -195,9 +298,5 @@ export function computeMissingFields(
   type: 'dataset' | 'workflow' | 'component',
   metadata: Record<string, unknown>
 ): string[] {
-  return requiredFieldKeys(type).filter(key => {
-    const value = metadata[key];
-    if (Array.isArray(value)) return value.length === 0;
-    return value === undefined || value === null || value === '';
-  });
+  return requiredFieldKeys(type, metadata).filter(key => isEmpty(metadata[key]));
 }

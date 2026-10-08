@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { CatalogueHit, DetectedRepoAsset, DraftFdoAsset, Relationship, LifecycleItem, RelationType, SuggestedRelation, WorkflowGraph } from '../types';
-import { FieldDef, FieldGroup, computeMissingFields, schemaFor } from '../fieldSchemas';
+import { FieldDef, FieldGroup, computeMissingFields, isFieldRequired, schemaFor } from '../fieldSchemas';
 import {
   CATALOGUE_BADGE_CLASS,
   DRAFT_TYPE_BADGE_CLASS,
@@ -246,6 +246,9 @@ export function PublicationPage(props: PublicationPageProps): JSX.Element {
    const drafts = await Promise.all(
      chosen.map(async asset => {
        const metadata = await enrichOne(asset);
+       if (asset.type === 'workflow' && !metadata.persistentIdentifier) {
+         metadata.persistentIdentifier = asset.internalPid ?? asset.pid ?? '';
+       }
 
        const draft: DraftFdoAsset = {
          id: asset.id,
@@ -942,7 +945,7 @@ export function PublicationPage(props: PublicationPageProps): JSX.Element {
                           <label className="fdo-form-field" key={field.key}>
                             <span>
                               {field.label}
-                              {field.required ? ' *' : ''}
+                              {isFieldRequired(field, activeAsset.metadata) ? ' *' : ''}
                             </span>
                             <FieldInput
                               field={field}
